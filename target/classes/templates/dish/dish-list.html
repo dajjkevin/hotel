@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="/css/font.css">
+    <link rel="stylesheet" href="/css/xadmin.css">
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <script src="/lib/layui/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/xadmin.js"></script>
+    <style>
+        .top,body{
+            background-color: rgb(239,238,240);
+        }
+        .top span{
+            font-size: 13px;
+            color: #666666;
+            margin-top: 5px;
+            margin-left: 5px;
+            margin-right: 5px;
+        }
+        .next{
+            position: absolute;
+            left: 50%;
+            margin-left: -100px;
+        }
+    </style>
+</head>
+<body>
+<div class="top">
+    <span style="margin-left: 25px">首页</span><span>></span><span>菜品管理</span><span>></span><span>菜品列表</span>
+    <button class="layui-btn layui-btn-radius layui-btn-normal" onclick="flash()">刷新</button>
+    <button class="layui-btn layui-btn-radius layui-btn-normal" onclick="add()">添加新菜品</button>
+    <button class="layui-btn layui-btn-radius layui-btn-normal" onclick="add()">添加新种类</button>
+    <form  style="margin-left: 15%;display: inline" action="/dish/list" id="myform" >
+        <select id="department" name="department" style="width: 100px;height: 37px">
+        </select>
+        <input type="button" class="layui-btn layui-btn-radius layui-btn-normal" onclick="search()" value="查询" >
+    </form>
+</div>
+<table class="layui-table" style="margin-top:0">
+    <thead>
+    <th>编号</th>
+    <th>菜品名称</th>
+    <th>单价</th>
+    <th>种类</th>
+    <th>所属部门</th>
+    <th>时间</th>
+    </thead>
+    <tbody>
+    <tr th:each="i:${info.list}">
+        <td th:text="${i.dishId}"></td>
+        <td th:text="${i.dishName}"></td>
+        <td th:text="${i.dishPrice}"></td>
+        <td th:text="${i.type}"></td>
+        <td th:text="${i.department}"></td>
+        <td th:text="${i.time}"></td>
+    </tr>
+    </tbody>
+</table>
+<div class="next">
+    <div style=" margin-top:-5px;text-align: center" >
+        一共有<span th:text="${info.total}"></span>条数据
+        当前在第<span th:text="${info.cur}"></span>页
+    </div>
+    <div style="margin-top: 10px">
+        <a class="layui-btn layui-btn-normal" th:href="@{/dish/list(page=${info.prePage})} ">上一页</a>
+        <a class="layui-btn layui-btn-normal" th:href="@{/dish/list(page=${info.nextPage})} ">下一页</a>
+    </div>
+</div>
+</body>
+</html>
+<script>
+
+    $(function(){
+        //执行查询时间函数
+        loadDepartment();
+    })
+    function loadDepartment() {
+        $.ajax({
+            url:"/admin/department",
+            type:"get",
+            dataType:"json",
+            success:function(data){
+                var html="";
+                for(var i=0;i<data.length;i++){
+                    html+="<option value='"+data[i].department+"'>"+data[i].department+"</option>"
+                }
+                $("#department").html(html);
+            }
+        })
+    }
+
+    function search() {
+        document.getElementById("myform").submit();
+    }
+    function flash() {
+        document.getElementById("myform").submit();
+    }
+    function add() {
+        x_admin_show("添加菜品","/dish/addPage",500,400)
+    }
+
+</script>

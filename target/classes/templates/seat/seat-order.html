@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="/css/font.css">
+    <link rel="stylesheet" href="/css/xadmin.css">
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <script src="/lib/layui/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/xadmin.js"></script>
+</head>
+<body>
+<form class="layui-form">
+    <div class="layui-form-item">
+        <div class="layui-input-inline">
+            <div class="layui-input-inline">
+                <input type="text" id="seatId" name="seatId" style="display: none" th:value="${seatinfo.seatId}"  required=""
+                       autocomplete="off" class="layui-input" >
+            </div>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="seatName" class="layui-form-label">
+            <span class="x-red">*</span>房间
+        </label>
+        <div class="layui-input-inline">
+            <input type="text" id="seatName" name="seatName" disabled th:value="${seatinfo.seatName}"  required=""
+                   autocomplete="off" class="layui-input" >
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="time" class="layui-form-label">
+            <span class="x-red">*</span>时间
+        </label>
+        <div class="layui-input-inline">
+            <input type="text" id="time" name="time"  required=""  lay-verify="time"
+                   autocomplete="off" class="layui-input" placeholder="yyyy-MM-dd HH:mm:ss">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="message" class="layui-form-label">
+            <span class="x-red">*</span>备注
+        </label>
+        <div class="layui-input-inline">
+            <input type="text" id="message" name="message"  required=""
+                   autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label  class="layui-form-label">
+        </label>
+        <button  class="layui-btn" lay-filter="order" lay-submit="">
+            确认订购
+        </button>
+    </div>
+</form>
+</body>
+</html>
+<script>
+    layui.use('laydate', function(){
+        var laydate = layui.laydate;
+
+        laydate.render({
+            elem: '#time'
+            ,type: 'datetime'
+            ,mark: {
+                '0-0-9': '会员日'
+            }
+            ,change: function(value, date, endDate){
+                layer.msg(value)
+            }
+        });
+    });
+
+    layui.use(['form','layer'], function(){
+        $ = layui.jquery;
+        var form = layui.form
+            ,layer = layui.layer;
+
+        //自定义验证规则
+        form.verify({
+            time: function(value){
+                    var date = new Date();
+                    var date1 = new Date(value);
+                    if(date1.getTime()<date.getTime()){
+                        return '你怎么可以定过去的座位呢';
+                    }
+                    if(date1.getHours()<9||date1.getHours()>22){
+                        return '选定时间打烊了，店家休息了'
+                    }
+            }
+        });
+
+        form.on('submit(order)', function(data){
+            console.log(data);
+            $.ajax({
+                url:"/seat/order",
+                type:"post",
+                data:data.field,
+                dataType:"json",//返回的数据类型
+                success:function(data){
+                    layer.alert(data.info)
+                    //如果注册成功就跳转到登录页面
+                    if(data.info=="预定成功"){
+                        //关闭弹窗
+                        // 获得frame索引
+                        var index = parent.layer.getFrameIndex(window.name);
+                        //关闭当前frame
+                        parent.layer.close(index);
+                    }
+                }
+            })
+            return false;
+        });
+    });
+
+    function formatUnixtimestamp (unixtimestamp){
+        var unixtimestamp = new Date(unixtimestamp*1000);
+        var year = 1900 + unixtimestamp.getYear();
+        var month = "0" + (unixtimestamp.getMonth() + 1);
+        var date = "0" + unixtimestamp.getDate();
+        var hour = "0" + unixtimestamp.getHours();
+        var minute = "0" + unixtimestamp.getMinutes();
+        var second = "0" + unixtimestamp.getSeconds();
+        return year + "-" + month.substring(month.length-2, month.length)  + "-" + date.substring(date.length-2, date.length)
+            + " " + hour.substring(hour.length-2, hour.length) + ":"
+            + minute.substring(minute.length-2, minute.length) + ":"
+            + second.substring(second.length-2, second.length);
+    }
+</script>

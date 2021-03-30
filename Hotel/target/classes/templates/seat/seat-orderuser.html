@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="/css/font.css">
+    <link rel="stylesheet" href="/css/xadmin.css">
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <script src="/lib/layui/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/xadmin.js"></script>
+</head>
+<body>
+<div class="top">
+    <button class="layui-btn layui-btn-radius layui-btn-normal" onclick="flash()">刷新</button>
+    <span style="margin-left: 15px">首页</span><span>></span><span>订单管理</span><span>></span><span>座位</span>
+</div>
+<form  action="/orderseat/user" id="myform" >
+</form>
+
+<table class="layui-table">
+    <thead>
+    <th>编号</th>
+    <th>座位名称</th>
+    <th>预定就餐时间</th>
+    <th>备注</th>
+    <th>订单信息</th>
+    <th>操作</th>
+    </thead>
+    <tbody>
+    <tr th:each="i:${info.list}">
+        <td th:text="${i.orderSeatId}"></td>
+        <td th:text="${i.seatName}"></td>
+        <td th:text="${i.time}"></td>
+        <td th:text="${i.message}"></td>
+        <td th:text="${i.ordermessage}"></td>
+        <td>
+            <button class="layui-btn layui-btn-normal" type="button" onclick="tuizuo(this)">退订</button>
+        </td>
+    </tr>
+    </tbody>
+</table>
+<div >
+    <a class="layui-btn layui-btn-normal" th:href="@{/orderseat/user(page=${info.prePage})} ">上一页</a>
+    <a class="layui-btn layui-btn-normal" th:href="@{/orderseat/user(page=${info.nextPage})} ">下一页</a>
+    一共有<span th:text="${info.total}"></span>条数据
+    当前在第<span th:text="${info.cur}"></span>页
+</div>
+</body>
+</html>
+<script>
+    function flash() {
+        document.getElementById("myform").submit();
+    }
+
+    function tuizuo(obj) {
+        var orderSeatId=$(obj).parent().parent().find("td").eq(0).text();
+        $.ajax({
+            url:"/orderseat/del",
+            type:"post",
+            data:{"orderSeatId":orderSeatId},
+            dataType:"json",
+            success:function (data) {
+                layer.alert(data.info);
+            }
+        })
+    }
+</script>

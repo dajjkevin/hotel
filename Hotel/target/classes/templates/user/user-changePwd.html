@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="/css/font.css">
+    <link rel="stylesheet" href="/css/xadmin.css">
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <script src="/lib/layui/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/xadmin.js"></script>
+</head>
+<body>
+<input name="UserPwd" id="UserPwd" placeholder="请输入新密码"  type="password"  class="layui-input" >
+<hr class="hr15">
+<input name="ReUserPwd" id="ReUserPwd" placeholder="再次输入新密码"  type="password"  class="layui-input" >
+<hr class="hr15">
+<button  class="layui-btn" onclick=" change()">
+    确认修改
+</button>
+</body>
+<script>
+    function change() {
+        var UserPwd=$("#UserPwd").val()
+        var ReUserPwd=$("#ReUserPwd").val()
+        if(UserPwd.length==0){
+            layer.open({
+                title: '提示'
+                , content: '请输入新密码'
+            });
+        }
+        else if(ReUserPwd.length==0){
+            layer.open({
+                title: '提示'
+                , content: '请重复输入新密码'
+            });
+        }
+        else {
+            if(UserPwd!=ReUserPwd){
+                layer.open({
+                    title: '提示'
+                    , content: '俩次密码不一样'
+                });
+            }
+            else {
+                $.ajax({
+                    url: "/user/changePwd",
+                    type: "post",
+                    data: {
+                        "UserPwd":UserPwd
+                    },
+                    dataType: "json",//返回的数据类型
+                    success: function (data) {
+                        layer.open({
+                            title: '修改结果'
+                            , content: data.info
+                        });
+                        if(data.info=="修改成功"){
+                            var index = parent.layer.getFrameIndex(window.name);
+                            console.log(index)
+                            document.location.href="/user/loginPage";
+                        }
+                    }
+                })
+            }
+        }
+    }
+</script>
+</html>

@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>用户信息</title>
+    <link rel="stylesheet" href="/css/font.css">
+    <link rel="stylesheet" href="/css/xadmin.css">
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <script src="/lib/layui/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/xadmin.js"></script>
+</head>
+<body>
+<div class="top">
+    <span style="margin-left: 25px">首页</span><span>></span><span>会员管理</span><span>></span><span>会员基本信息</span>
+    <button class="layui-btn layui-btn-radius layui-btn-normal" type="button" onclick="flash()">刷新</button>
+    <form style="display: inline;margin-left: 6%" class="x-so" action="/integral" id="myform">
+        <select id="condition" name="condition" style="width: 100px;height: 37px">
+            <option value="----">----</option>
+            <option value="编号">编号</option>
+            <option value="用户名">用户名</option>
+            <option value="姓名">姓名</option>
+        </select>
+        <input class="layui-input" name="conValue" th:value="${vv}" type="text" id="conValue" placeholder="请输入查询条件">
+        <input type="button" class="layui-btn layui-btn-normal" onclick="search()" value="查询" >
+        <input type="button" class="layui-btn layui-btn-normal" onclick="sort(1)" value="积分高到低">
+        <input type="button" class="layui-btn layui-btn-normal" onclick="sort(2)" value="积分低到高">
+    </form>
+    <style>
+        .top{
+            background-color: rgb(239,238,240);
+        }
+        .top span{
+            font-size: 13px;
+            color: #666666;
+            margin-top: 5px;
+            margin-left: 5px;
+            margin-right: 5px;
+        }
+        .next{
+            position: absolute;
+            left: 50%;
+            margin-left: -100px;
+        }
+    </style>
+</div>
+    <table class="layui-table" style="margin-top: 0;text-align: center">
+    <thead>
+    <th>编号</th>
+    <th>用户名</th>
+    <th>名字</th>
+    <th>年龄</th>
+    <th>性别</th>
+    <th>积分</th>
+    <th>地址</th>
+    <th>操作</th>
+    </thead>
+    <tbody>
+    <tr th:each="i:${info.list}">
+        <td th:text="${i.UserId}"></td>
+        <td th:text="${i.UserName}"></td>
+        <td th:text="${i.Name}"></td>
+        <td th:text="${i.Age}"></td>
+        <td th:text="${i.Sex}"></td>
+        <td th:text="${i.integral}"></td>
+        <td th:text="${i.Address}"></td>
+        <td>
+            <button class="layui-btn layui-btn-normal" type="button" onclick="update(this)">更改信息</button>
+            <button class="layui-btn layui-btn-normal" type="button" onclick="deleteuser(this)">删除</button>
+        </td>
+    </tr>
+    </tbody>
+</table>
+<div class="next">
+    <div style=" margin-top:-5px;text-align: center" >
+        一共有<span th:text="${info.total}"></span>条数据
+        当前在第<span th:text="${info.cur}"></span>页
+    </div>
+    <div style="margin-top: 10px">
+        <a class="layui-btn layui-btn-normal" th:href="@{/integral(page=${info.prePage})} ">上一页</a>
+        <a class="layui-btn layui-btn-normal" th:href="@{/integral(page=${info.nextPage})} ">下一页</a>
+    </div>
+</div>
+</body>
+</html>
+<script>
+    function flash() {
+        document.getElementById("myform").submit();
+    }
+    function update(obj) {
+        var id=$(obj).parent().parent().find("td").eq(0).text();
+        $.ajax({
+            url:"/editinfo",
+            type:"post",
+            data:{"UserId":id},
+            dataType:"json",
+            success:function (data) {
+                if(data.info=="yes"){
+                    x_admin_show("更改信息","/editPage",600,500);
+                }
+            }
+        })
+    }
+
+    function deleteuser(obj) {
+        var id=$(obj).parent().parent().find("td").eq(0).text();
+        layer.confirm("你确定要删除吗？",{icon:2,title:"警告"},function (index) {
+            $.ajax({
+                url:"/del",
+                type:"post",
+                data:{"UserId":id},
+                dataType:"json",
+                success:function (data) {
+                    layer.alert(data.info)
+                    if(data.info=="删除成功"){
+                        document.getElementById("myform").submit();
+                    }
+                    layer.close(index);
+                }
+            })
+        })
+    }
+
+    function search() {
+        var v =$("#conValue").val();
+        var con =$("#condition").val();
+        if(con=="编号"){
+            var re = /^[0-9]*$/;
+            //验证用户输入的信息是否是数字
+            if(re.test(v)){
+                document.getElementById("myform").submit();
+            }
+            else {
+                layer.alert("请输入数字")
+            }
+        }
+        else{
+            document.getElementById("myform").submit();
+        }
+    }
+    function sort(number) {
+        $.ajax({
+            url:"/integralsort",
+            type:"post",
+            data:{"sort":number},
+            dataType:"json",
+            success:function (data) {
+                if(data.info=="加载成功"){
+                    document.getElementById("myform").submit();
+                }
+            }
+        })
+    }
+</script>

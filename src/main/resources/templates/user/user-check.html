@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="/css/font.css">
+    <link rel="stylesheet" href="/css/xadmin.css">
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <script src="/lib/layui/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/xadmin.js"></script>
+</head>
+<body >
+<div style="position: absolute;left: 22%;top:15%">
+    <input  name="UserName" id="UserName" placeholder="请输入用户名"  type="text"  class="layui-input" >
+    <br>
+    <input  name="code" id="code" placeholder="请输入验证码"  type="text"  class="layui-input" >
+    <div style="margin-top: 20px;">
+        <button  class="layui-btn" onclick=" sendcode()">
+            发送邮件验证码
+        </button>
+        <button  class="layui-btn"  onclick="check()" >
+            验证
+        </button>
+    </div>
+</div>
+</body>
+<script>
+    function sendcode() {
+        var UserName = $("#UserName").val()
+        if (UserName.length==0) {
+            layer.open({
+                title: '提示'
+                , content: '请输入用户名'
+            });
+        } else {
+            $.ajax({
+                url: "/user/sendcheckemail",
+                type: "post",
+                data: {
+                    "UserName": UserName
+                },
+                dataType: "json",//返回的数据类型
+                success: function (data) {
+                    layer.open({
+                        title: '发送结果'
+                        , content: data.info
+                    });
+                }
+
+            })
+        }
+    }
+    
+    function check() {
+        var code = $("#code").val()
+        if(code.length==0){
+            layer.open({
+                title: '提示'
+                , content: '请输入验证码'
+            });
+        }
+        else{
+            $.ajax({
+                url: "/user/checkemail",
+                type: "post",
+                data: {
+                    "code": code
+                },
+                dataType: "json",//返回的数据类型
+                success: function (data) {
+                    layer.open({
+                        title: '发送结果'
+                        , content: data.info
+                    });
+                    if(data.info=="验证成功"){
+                        //刷新
+                        location.replace("/user/changePwdPage")
+                    }
+                }
+
+            })
+        }
+    }
+
+
+
+</script>
+</html>

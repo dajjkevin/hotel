@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="/css/font.css">
+    <link rel="stylesheet" href="/css/xadmin.css">
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <script src="/lib/layui/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/xadmin.js"></script>
+</head>
+<body>
+<form class="layui-form" style="margin-left: 50px;margin-top: 30px">
+    <div class="layui-form-item">
+        <label for="AdminName" class="layui-form-label">
+            <span class="x-red">*</span>用户名
+        </label>
+        <div class="layui-input-inline">
+            <input type="text" id="AdminName" name="AdminName"  required="" lay-verify="AdminName"
+                   autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="Name" class="layui-form-label">
+            <span class="x-red">*</span>姓名
+        </label>
+        <div class="layui-input-inline">
+            <input type="text" id="Name" name="Name"  required=""
+                   autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="department" class="layui-form-label">
+            <span class="x-red">*</span>部门
+        </label>
+        <div class="layui-input-inline">
+            <select type="text" id="department" name="department"  required="" autocomplete="off"
+                    lay-verify="department" class="layui-select">
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="leader" class="layui-form-label">
+            <span class="x-red">*</span>是否主管
+        </label>
+        <div class="layui-input-inline">
+            <select type="text" id="leader" name="leader"  required="" autocomplete="off"
+                    lay-verify="leader" class="layui-select">
+                <option value="----">----</option>
+                <option value="是">是</option>
+                <option value="否">否</option>
+            </select>
+        </div>
+    </div>
+    <div class="layui-form-item" style="margin-top: 30px;margin-left: 30px">
+        <label  class="layui-form-label">
+        </label>
+        <button  class="layui-btn" lay-filter="add" lay-submit="">
+            确认添加
+        </button>
+    </div>
+</form>
+</body>
+</html>
+<script>
+
+    $(function(){
+        //执行查询时间函数
+        loadDepartment();
+    })
+
+    function loadDepartment() {
+        $.ajax({
+            url:"/admin/department",
+            type:"get",
+            dataType:"json",
+            success:function(data){
+                var html="<option value=\"----\">----</option>";
+                for(var i=0;i<data.length;i++){
+                    html+="<option value='"+data[i].department+"'>"+data[i].department+"</option>"
+                }
+                $("#department").html(html);
+            }
+        })
+    }
+
+
+
+    layui.use(['form','layer'], function(){
+        $ = layui.jquery;
+        var form = layui.form
+            ,layer = layui.layer;
+
+        //自定义验证规则
+        form.verify({
+            AdminName: function(value){
+                if(value.length < 6){
+                    return '用户名至少得6个字符啊';
+                }
+            },
+            department:function (value) {
+                if(value=="----"){
+                    return '请选择部门';
+                }
+            },
+            leader:function (value) {
+                if(value=="----"){
+                    return '请选择部门';
+                }
+            }
+        });
+
+
+        form.on('submit(add)', function(data){
+            console.log(data);
+            $.ajax({
+                url:"/admin/add",
+                type:"post",
+                data:data.field,
+                dataType:"json",//返回的数据类型
+                success:function(data){
+                    layer.alert(data.info)
+                    //如果注册成功就跳转到登录页面
+                    if(data.info=="添加成功"){
+                        var index = parent.layer.getFrameIndex(window.name);
+                        parent.layer.close(index);
+                    }
+                }
+            })
+            return false;
+        });
+    });
+</script>

@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="/css/font.css">
+    <link rel="stylesheet" href="/css/xadmin.css">
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <script src="/lib/layui/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/xadmin.js"></script>
+    <style>
+        #dad{
+            position: absolute;
+            left: 50%;
+            margin-left: -10px;
+        }
+    </style>
+</head>
+<body >
+
+<form style="margin-left: 100px;margin-top: 30px" class="layui-form">
+    <div class="layui-form-item">
+        <label for="UserId" class="layui-form-label">
+            <span class="x-red">*</span>编号
+        </label>
+        <div class="layui-input-inline">
+            <input type="text" id="UserId" name="UserId" disabled th:value="${session.userinfo.UserId}"  required=""
+                   autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="UserName" class="layui-form-label">
+            <span class="x-red">*</span>用户名
+        </label>
+        <div class="layui-input-inline">
+            <input name="UserName" id="UserName"  th:value="${session.userinfo.UserName}"  type="text"  required="" lay-verify="UserName"
+                   autocomplete="off" class="layui-input" >
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="Name" class="layui-form-label">
+            <span class="x-red">*</span>姓名
+        </label>
+        <div class="layui-input-inline">
+            <input name="Name" id="Name"  th:value="${session.userinfo.Name}" type="text"  required=""
+                   autocomplete="off" class="layui-input" >
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="Age" class="layui-form-label">
+            <span class="x-red">*</span>年龄
+        </label>
+        <div class="layui-input-inline">
+            <input name="Age" id="Age"  th:value="${session.userinfo.Age}" type="text"  required=""
+                   autocomplete="off" class="layui-input" >
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="Sex" class="layui-form-label">
+            <span class="x-red">*</span>性别
+        </label>
+        <div class="layui-input-inline">
+            <input name="Sex" id="Sex"  th:value="${session.userinfo.Sex}" type="text"   required="" lay-verify="Sex"
+                   autocomplete="off"class="layui-input" >
+        </div>
+        <div class="layui-form-mid layui-word-aux">
+            <span class="x-red">*</span>性别只能填保密 男 女
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="Address" class="layui-form-label">
+            <span class="x-red">*</span>地址
+        </label>
+        <div class="layui-input-inline">
+            <input name="Address" id="Address"  th:value="${session.userinfo.Address}" type="text"   required=""
+                   autocomplete="off"class="layui-input" >
+        </div>
+    </div>
+    <div class="layui-form-item" style="margin-left: 40px">
+        <label  class="layui-form-label">
+        </label>
+        <button  class="layui-btn" lay-filter="add" lay-submit="">
+            保存修改
+        </button>
+    </div>
+    <span id="info" style="color:red"></span>
+</form>
+
+</body>
+<script>
+    layui.use(['form','layer'], function(){
+        $ = layui.jquery;
+        var form = layui.form
+            ,layer = layui.layer;
+
+        //自定义验证规则
+        form.verify({
+            UserName: function(value){
+                if(value.length < 6){
+                    return '昵称至少得6个字符啊';
+                }
+            },
+            Sex:function (value) {
+                if(value!="保密"&&value!="男"&&value!="女"){
+                    return '性别只能填保密 男 女';
+                }
+            }
+        });
+
+        //修改
+        form.on('submit(add)', function(data){
+            console.log(data);
+            $.ajax({
+                url:"/edit",
+                type:"post",
+                data:data.field,
+                dataType:"json",//返回的数据类型
+                success:function(data){
+                    layer.alert(data.info)
+                    //如果注册成功就跳转到登录页面
+                    if(data.info=="修改成功"){
+                        //关闭弹窗
+                        // 获得frame索引
+                        var index = parent.layer.getFrameIndex(window.name);
+                        //关闭当前frame
+                        parent.layer.close(index);
+                    }
+                }
+            })
+            return false;
+        });
+    });
+</script>
+</html>

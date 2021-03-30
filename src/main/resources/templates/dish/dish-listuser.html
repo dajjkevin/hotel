@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="/css/font.css">
+    <link rel="stylesheet" href="/css/xadmin.css">
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <script src="/lib/layui/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/xadmin.js"></script>
+    <style>
+        .top,body{
+            background-color: rgb(239,238,240);
+        }
+        .top span{
+            font-size: 13px;
+            color: #666666;
+            margin-top: 5px;
+            margin-left: 5px;
+            margin-right: 5px;
+        }
+        .next{
+            position: absolute;
+            left: 50%;
+            margin-left: -100px;
+        }
+    </style>
+</head>
+<body>
+<div class="top">
+    <span style="margin-left: 25px">首页</span><span>></span><span>订单管理</span><span>></span><span>菜单</span>
+    <button class="layui-btn layui-btn-radius layui-btn-normal" onclick="flash()">刷新</button>
+    <form  style="display: inline;margin-left: 25%" action="/dish/listuser" id="myform" >
+        <select  id="type" name="type" style="width: 100px;height: 37px">
+
+        </select>
+        <input type="button" class="layui-btn layui-btn-radius layui-btn-normal" onclick="search()" value="查询" >
+    </form>
+</div>
+
+<table class="layui-table" style="margin-top: 0;text-align: center">
+    <thead>
+    <th style="text-align: center">编号</th>
+    <th style="text-align: center">菜品名称</th>
+    <th style="text-align: center">单价</th>
+    <th style="text-align: center">种类</th>
+    <th style="text-align: center">操作</th>
+    </thead>
+    <tbody>
+    <tr th:each="i:${info.list}">
+        <td th:text="${i.dishId}"></td>
+        <td th:text="${i.dishName}"></td>
+        <td th:text="${i.dishPrice}"></td>
+        <td th:text="${i.type}"></td>
+        <td style="text-align: center">
+            <input type="button" class="layui-btn layui-btn-normal" onclick="add(this)" value="下单一份" >
+        </td>
+    </tr>
+    </tbody>
+</table>
+<div class="next">
+    <div style=" margin-top:-5px;text-align: center" >
+        一共有<span th:text="${info.total}"></span>条数据
+        当前在第<span th:text="${info.cur}"></span>页
+    </div>
+    <div style="margin-top: 10px">
+        <a class="layui-btn layui-btn-normal" th:href="@{/dish/listuser(page=${info.prePage})} ">上一页</a>
+        <a class="layui-btn layui-btn-normal" th:href="@{/dish/listuser(page=${info.nextPage})} ">下一页</a>
+    </div>
+</div>
+</body>
+</html>
+<script>
+    function flash() {
+        document.getElementById("myform").submit();
+    }
+    $(function(){
+        loadType();
+    })
+    function loadType() {
+        $.ajax({
+            url:"/dish/type",
+            type:"get",
+            dataType:"json",
+            success:function(data){
+                var html="<option></option>";
+                for(var i=0;i<data.length;i++){
+                    html+="<option value='"+data[i].type+"'>"+data[i].type+"</option>"
+                }
+                $("#type").html(html);
+            }
+        })
+    }
+    function search() {
+        document.getElementById("myform").submit();
+    }
+    function add(obj) {
+        var id=$(obj).parent().parent().find("td").eq(0).text();
+        $.ajax({
+            url:"/dish/buy",
+            type:"post",
+            data:{"dishId":id},
+            dataType:"json",
+            success:function (data) {
+                layer.alert(data.info);
+                if(data.info=="下单成功"){
+                    layer.alert("下单成功");
+                }
+            }
+        })
+    }
+</script>

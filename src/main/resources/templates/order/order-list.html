@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="/css/font.css">
+    <link rel="stylesheet" href="/css/xadmin.css">
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <script src="/lib/layui/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/xadmin.js"></script>
+    <style>
+        .buy{
+            position: absolute;
+            left:50%;
+            margin-left: -45px;
+            top: 70%;
+        }
+        .top,body{
+            background-color: rgb(239,238,240);
+        }
+        form div span{
+            font-size: 13px;
+            color: #666666;
+            margin-top: 5px;
+            margin-left: 5px;
+            margin-right: 5px;
+        }
+        .next{
+            position: absolute;
+            left: 50%;
+            margin-left: -100px;
+        }
+    </style>
+</head>
+<body>
+
+<form action="/order/list" id="myform" >
+    <div class="top">
+        <span style="margin-left: 25px">首页</span><span>></span><span>订单管理</span><span>></span><span>此次点菜列表</span>
+        <button class="layui-btn layui-btn-radius layui-btn-normal" onclick="flash()">刷新</button>
+    </div>
+</form>
+
+
+<table class="layui-table" style="margin-top: 0;text-align: center">
+    <thead>
+    <th style="text-align: center">编号</th>
+    <th style="text-align: center">菜品名称</th>
+    <th style="text-align: center">份数</th>
+    <th style="text-align: center">单价</th>
+    <th style="text-align: center">时间</th>
+    </thead>
+    <tbody>
+    <tr th:each="i:${info.list}">
+        <td th:text="${i.orderId}"></td>
+        <td th:text="${i.dishName}"></td>
+        <td th:text="${i.number}"></td>
+        <td th:text="${i.dishPrice}"></td>
+        <td th:text="${i.time}"></td>
+    </tr>
+    </tbody>
+</table>
+<div class="next">
+    <div style=" margin-top:-5px;text-align: center" >
+        一共有<span th:text="${info.total}"></span>条数据
+        当前在第<span th:text="${info.cur}"></span>页
+    </div>
+    <div style="margin-top: 10px">
+        <a class="layui-btn layui-btn-normal" th:href="@{/order/list(page=${info.prePage})} ">上一页</a>
+        <a class="layui-btn layui-btn-normal" th:href="@{/order/list(page=${info.nextPage})} ">下一页</a>
+    </div>
+</div>
+<div class="next">
+    <div style=" margin-top:-5px;text-align: center" >
+        一共有<span th:text="${info.total}"></span>条数据
+        当前在第<span th:text="${info.cur}"></span>页
+    </div>
+    <div style="margin-top: 10px">
+        <a class="layui-btn layui-btn-normal" th:href="@{/order/list(page=${info.prePage})} ">上一页</a>
+        <a class="layui-btn layui-btn-normal" th:href="@{/order/list(page=${info.nextPage})} ">下一页</a>
+    </div>
+</div>
+<form  class="buy" enctype="multipart/form-data" action="/pay/Page" method="post">
+    <button style="width: 80px;height: 80px" type="submit" class="layui-btn layui-btn-radius layui-btn-normal">结账</button>
+</form>
+</body>
+</html>
+<script>
+    function flash() {
+        document.getElementById("myform").submit();
+    }
+</script>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="/css/font.css">
+    <link rel="stylesheet" href="/css/xadmin.css">
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <script src="/lib/layui/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/xadmin.js"></script>
+    <style>
+        .top{
+            background-color: rgb(239,238,240);
+        }
+        div span{
+            font-size: 13px;
+            color: #666666;
+            margin-top: 5px;
+            margin-left: 5px;
+            margin-right: 5px;
+        }
+        .next{
+            position: absolute;
+            left: 50%;
+            margin-left: -100px;
+        }
+    </style>
+</head>
+<body>
+<div class="top">
+    <span style="margin-left: 25px">首页</span><span>></span><span>人员管理</span><span>></span><span>进货商管理</span>
+    <button class="layui-btn layui-btn-radius layui-btn-normal" onclick="flash()">刷新</button>
+    <button class="layui-btn layui-btn-radius layui-btn-normal" onclick="add()">添加新的供货商</button>
+</div>
+<form  action="/supplier/list" id="myform" >
+</form>
+<table class="layui-table" style="margin-top: 0">
+    <thead>
+    <th>编号</th>
+    <th>供货商名称</th>
+    <th>联系电话</th>
+    </thead>
+    <tbody>
+    <tr th:each="i:${info.list}">
+        <td th:text="${i.supplierId}"></td>
+        <td th:text="${i.Name}"></td>
+        <td th:text="${i.tel}"></td>
+    </tr>
+    </tbody>
+</table>
+<div class="next">
+    <div style=" margin-top:-5px;text-align: center" >
+        一共有<span th:text="${info.total}"></span>条数据
+        当前在第<span th:text="${info.cur}"></span>页
+    </div>
+    <div style="margin-top: 10px">
+        <a class="layui-btn layui-btn-normal" th:href="@{/supplier/list(page=${info.prePage})} ">上一页</a>
+        <a class="layui-btn layui-btn-normal" th:href="@{/supplier/list(page=${info.nextPage})} ">下一页</a>
+    </div>
+</div>
+</body>
+<script>
+    function add() {
+        x_admin_show("添加","/supplier/addPage",500,300);
+    }
+    function flash() {
+        document.getElementById("myform").submit();
+    }
+    $.ajax({
+        url: "/admin/Pwd",
+        type: "post",
+        data: {
+            "AdminPwd":AdminPwd,
+            "AdminId":id
+        },
+        dataType: "json",//返回的数据类型
+        success: function (data) {
+            layer.open({
+                title: '修改结果'
+                , content: data.info
+            });
+            if(data.info=="重置成功"){
+                var index = parent.layer.getFrameIndex(window.name);
+                console.log(index)
+                parent.window.location.href=parent.window.location.href;
+            }
+        }
+    })
+</script>
+</html>

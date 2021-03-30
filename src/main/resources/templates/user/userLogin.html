@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/x-icon" href="#" />
+    <link type="text/css" rel="styleSheet"  href="/css/login.css" />
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/font.css">
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <script src="/lib/layui/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/xadmin.js"></script>
+    <title>快捷酒店会员登录</title>
+
+</head>
+
+
+<body>
+<div id="bg">
+    <div id="hint"><!-- 提示框 -->
+    </div>
+    <div id="login_wrap">
+        <div id="login"><!-- 登录注册切换动画 -->
+            <div id="status">
+                <i style="top: 0">登录</i>
+                <i style="top: 35px">邮箱</i>
+                <i style="top: 35px">注册</i>
+            </div>
+            <span>
+                    <form action="post">
+                        <p class="form confirm"><input type="text" id="username" placeholder="用户名"></p>
+                        <p class="form confirm"><input type="password" id="passwd" placeholder="密码"></p>
+                        <p> <input type="button" value="发送验证码" class="btn" style="display: none" onclick='sendcode()' id="sendbtn" ></p>
+                        <p class="form confirm"><input type="password" id="confirm-passwd" placeholder="重复密码"></p>
+                        <input type="button" value="登录" class="btn" onclick="login()" style="margin-right: 10px;">
+                        <input type="button" value="邮箱登录" class="btn" onclick="emaillogin()" style="margin-right: 10px;" >
+                        <input type="button" value="注册" class="btn" onclick='signin()' id="btn">
+                    </form>
+                    <a onclick="x_admin_show('修改密码','/user/checkPage',400,300)">忘记密码？</a>
+                </span>
+        </div>
+
+        <div id="login_img"><!-- 图片绘制框 -->
+            <span class="circle">
+                    <span></span>
+                    <span></span>
+                </span>
+            <span class="star">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </span>
+            <span class="fly_star">
+                    <span></span>
+                    <span></span>
+                </span>
+            <p id="title">HOTEL</p>
+        </div>
+    </div>
+</div>
+</body>
+<script>
+    var onoff = 0
+    let hit = document.getElementById("hint")
+    var emailconfirm = document.getElementsByClassName("confirm")[0]
+    var codeconfirm = document.getElementsByClassName("confirm")[1]
+    var RePwdconfirm = document.getElementsByClassName("confirm")[2]
+    var user = document.getElementById("username")
+    var passwd = document.getElementById("passwd")
+    var con_pass = document.getElementById("confirm-passwd")
+    emailconfirm.style.height=51 + "px"
+    codeconfirm.style.height=51 + "px"
+    RePwdconfirm.style.height=0
+    //自动居中title
+    var name_c = document.getElementById("title")
+    name = name_c.innerHTML.split("")
+    name_c.innerHTML = ""
+    for (i = 0; i < name.length; i++)
+        if (name[i] != ",")
+            name_c.innerHTML += "<i>" + name[i] + "</i>"
+    //引用hint()在最上方弹出提示
+    function hint() {
+        hit.style.display = "block"
+        setTimeout("hit.style.opacity = 1", 0)
+        setTimeout("hit.style.opacity = 0", 2000)
+        setTimeout('hit.style.display = "none"', 3000)
+    }
+
+    //登录按钮
+    function login() {
+        if (onoff==0) {
+            if(user.value==""){
+                hit.innerHTML="请输入账户名"
+            }
+            else if(passwd.value == ""){
+                hit.innerHTML="请输入密码"
+            }
+            else {
+                $.ajax({
+                    url: "/user/login",
+                    type: "post",
+                    data: {
+                        "UserName": user.value,
+                        "UserPwd": passwd.value
+                    },
+                    dataType: "json",
+                    success: function (data) {
+                        hit.innerHTML = data.info;
+                        if (data.info == "登录成功") {
+                            window.location.href = ("/index");
+                        }
+                        if (data.info == "未绑定邮箱") {
+                            x_admin_show('绑定邮箱','/user/emailPage',500,400)
+                        }
+                    }
+                })
+            }
+            hint();
+        } else {
+            $("#username").val("");
+            $("#passwd").val("");
+            $("#confirm-passwd").val("");
+            user.setAttribute("placeholder","用户名")
+            passwd.setAttribute("placeholder","密码")
+            $("#sendbtn").hide();
+            passwd.setAttribute("type","password")
+            let status = document.getElementById("status").getElementsByTagName("i")
+            RePwdconfirm.style.height=0
+            status[0].style.top = 0+ "px"
+            status[1].style.top = 35 + "px"
+            status[2].style.top = 35 + "px"
+            onoff = 0;
+        }
+    }
+
+    //注册按钮
+    function signin() {
+        let status = document.getElementById("status").getElementsByTagName("i")
+        if (onoff!=2) {
+            onoff = 2;
+            $("#username").val("");
+            $("#passwd").val("");
+            $("#confirm-passwd").val("");
+            user.setAttribute("placeholder","用户名")
+            passwd.setAttribute("placeholder","密码")
+            $("#sendbtn").hide();
+            passwd.setAttribute("type","password")
+            RePwdconfirm.style.height=51+"px"
+            status[0].style.top = 35 + "px"
+            status[1].style.top = 35 + "px"
+            status[2].style.top = 0+ "px"
+        } else {
+            if (!/^[A-Za-z0-9]+$/.test(user.value))
+                hit.innerHTML = "账号只能为英文和数字"
+            else if (user.value.length < 6)
+                hit.innerHTML = "账号长度必须大于6位"
+            else if (passwd.value.length < 6)
+                hit.innerHTML = "密码长度必须大于6位"
+            else if (passwd.value != con_pass.value)
+                hit.innerHTML = "两次密码不相等"
+            else if (passwd.value = con_pass.value) {
+                $.ajax({
+                    url: "/user/signin",
+                    type: "post",
+                    data: {
+                        "UserName": user.value,
+                        "UserPwd": passwd.value
+                    },
+                    dataType: "json",
+                    success: function (data) {
+                        hit.innerHTML = data.info;
+                        if (data.info== "注册成功") {
+                            console.log(1)
+                            x_admin_show('绑定邮箱','/user/emailPage',400,300)
+                        }
+                    }
+                })
+            }
+            hint()
+        }
+    }
+
+
+    function emaillogin() {
+        if(onoff!=1){
+            let status = document.getElementById("status").getElementsByTagName("i");
+            $("#username").val("");
+            $("#passwd").val("");
+            $("#confirm-passwd").val("");
+            user.setAttribute("placeholder","邮箱")
+            passwd.setAttribute("placeholder","验证码")
+            passwd.setAttribute("type","text")
+            $("#sendbtn").show();
+            RePwdconfirm.style.height=0
+            status[0].style.top = 35 + "px"
+            status[1].style.top = 0+ "px"
+            status[2].style.top = 35 + "px"
+            onoff = 1;
+        }
+        else {
+            if(passwd.value == ""){
+                hit.innerHTML="请输入验证码"
+            }
+            else{
+                var code=$("#passwd").val();
+                $.ajax({
+                    url:"/user/loginemail",
+                    type:"post",
+                    data:{
+                        "code":code
+                    },
+                    dataType:"json",
+                    success:function (data) {
+                        hit.innerHTML = data.info;
+                        if(data.info="登陆成功"){
+                            window.location.href = ("/index");
+                        }
+                    }
+                })
+            }
+            hint()
+        }
+    }
+
+    function sendcode() {
+        var re=/^\w+([-+.]\w+)*@\w+([-.]\w+)*\.\w+([-.]\w+)*$/
+        if(user.value ==""){
+            hit.innerHTML="请输入邮箱地址"
+        }
+        else if(!re.test(user.value)){
+            hit.innerHTML="请输入正确的邮箱"
+        }
+        else {
+            var email=$("#username").val();
+            $.ajax({
+                url:"/user/sendEmail",
+                type:"post",
+                data:{
+                    "email":email
+                },
+                dataType:"json",
+                success:function (data) {
+                    hit.innerHTML = data.info;
+                    if(data.info=="该邮箱未注册,前往注册"){
+                        $("#username").val("");
+                        $("#passwd").val("");
+                        $("#confirm-passwd").val("");
+                        user.setAttribute("placeholder","用户名")
+                        passwd.setAttribute("placeholder","密码")
+                        $("#sendbtn").hide();
+                        passwd.setAttribute("type","password")
+                        confirm.style.height = 51 + "px"
+                        status[0].style.top = 35 + "px"
+                        status[1].style.top = 35 + "px"
+                        status[2].style.top = 0
+                        onoff = 2;
+                    }
+                }
+            })
+        }
+        hint()
+    }
+</script>
+</html>

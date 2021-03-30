@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="/css/font.css">
+    <link rel="stylesheet" href="/css/xadmin.css">
+    <script type="text/javascript" src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+    <script src="/lib/layui/layui.js" charset="utf-8"></script>
+    <script type="text/javascript" src="/js/xadmin.js"></script>
+</head>
+<body>
+<form class="layui-form" style="margin-left: 50px;margin-top: 20px">
+    <div class="layui-form-item">
+        <label for="supplierName" class="layui-form-label">
+            <span class="x-red">*</span>供货商名称
+        </label>
+        <div class="layui-input-inline">
+            <input type="text" id="supplierName" name="supplierName"  required=""
+                   autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="supplierTel" class="layui-form-label">
+            <span class="x-red">*</span>供货商电话
+        </label>
+        <div class="layui-input-inline">
+            <input type="text" id="supplierTel" name="supplierTel"  required="" lay-verify="tel"
+                   autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="goodsName" class="layui-form-label">
+            <span class="x-red">*</span>货物名称
+        </label>
+        <div class="layui-input-inline">
+            <input type="text" id="goodsName" name="goodsName"  required=""
+                   autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="goodsPrice" class="layui-form-label">
+            <span class="x-red">*</span>单价
+        </label>
+        <div class="layui-input-inline">
+            <input type="text" id="goodsPrice" name="goodsPrice"  required="" lay-verify="goodsPrice"
+                   autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item">
+        <label for="number" class="layui-form-label">
+            <span class="x-red">*</span>数目(单位KG)
+        </label>
+        <div class="layui-input-inline">
+            <input type="text" id="number" name="number"  required=""  lay-verify="number"
+                   autocomplete="off" class="layui-input">
+        </div>
+    </div>
+    <div class="layui-form-item" style="margin-top: 30px;margin-left: 40px">
+        <label  class="layui-form-label">
+        </label>
+        <button  class="layui-btn" lay-filter="add" lay-submit="">
+            确认添加
+        </button>
+    </div>
+</form>
+</body>
+</html>
+<script>
+    layui.use(['form','layer'], function(){
+        $ = layui.jquery;
+        var form = layui.form
+            ,layer = layui.layer;
+
+        //自定义验证规则
+        form.verify({
+            number: function(value){
+                var re=/^\d+(\.\d+)?$/
+                if(!re.test(value)){
+                    return '请输入正确的数目';
+                }
+            },
+            goodsPrice: function(value){
+                var re=/^\d+(\.\d+)?$/
+                if(!re.test(value)){
+                    return '请输入正确的数目';
+                }
+            },
+            tel:function (value) {
+                var re=/^(13[0-9]|14[5|7]|15[0|1|2|3|5|6|7|8|9]|18[0|1|2|3|5|6|7|8|9]|19[0|1|2|3|5|6|7|8|9])\d{8}$/
+                if(!re.test(value)){
+                    return '请输入正确的电话号码';
+                }
+            }
+        });
+
+
+        form.on('submit(add)', function(data){
+            console.log(data);
+            $.ajax({
+                url:"/operating/add",
+                type:"post",
+                data:data.field,
+                dataType:"json",//返回的数据类型
+                success:function(data){
+                    layer.alert(data.info)
+                    //如果注册成功就跳转到登录页面
+                    if(data.info=="进货成功"){
+                        var index = parent.layer.getFrameIndex(window.name);
+                        parent.layer.close(index);
+                    }
+                }
+            })
+            return false;
+        });
+    });
+</script>
